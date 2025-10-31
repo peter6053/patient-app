@@ -1,11 +1,11 @@
 package com.patientmanagementapp.Auth.Presentation
 
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.patientmanagementapp.Auth.Dormain.Models.LoginResponse
 import com.patientmanagementapp.Auth.Dormain.UseCase.LoginUseCase
+import com.patientmanagementapp.Utils.DataStoreManager
 import com.patientmanagementapp.Utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val loginUseCase: LoginUseCase
+    private val loginUseCase: LoginUseCase,
+    private val dataStoreManager: DataStoreManager
 ) : ViewModel() {
 
     private val _email = MutableStateFlow("")
@@ -25,7 +26,7 @@ class LoginViewModel @Inject constructor(
     private val _password = MutableStateFlow("")
     val password: StateFlow<String> = _password.asStateFlow()
 
-    private val _state = MutableStateFlow<Resource<LoginResponse>>(Resource.Loading())
+    private val _state = MutableStateFlow<Resource<LoginResponse>>(Resource.Idle())
     val state: StateFlow<Resource<LoginResponse>> = _state.asStateFlow()
 
     fun onEmailChanged(value: String) {
@@ -41,7 +42,11 @@ class LoginViewModel @Inject constructor(
             _state.value = Resource.Loading()
             try {
                 val result: Resource<LoginResponse> = loginUseCase(_email.value, _password.value)
+                if (result is Resource.Success && result.data != null) {
+                    // Save token to DataStore
+                    dataStoreManager.saveAccessToken(result.data.data.access_token)
 
+                }
                 _state.value = result
             } catch (e: Exception) {
                 _state.value = Resource.Error(e.message ?: "Unknown error occurred")

@@ -40,7 +40,7 @@ android {
     buildFeatures {
         compose = true
 
-            buildConfig = true 
+            buildConfig = true
 
     }
 }
@@ -92,6 +92,9 @@ dependencies {
 
     // Timber for logging
     implementation("com.jakewharton.timber:timber:5.0.1")
+
+    // Preferences DataStore
+    implementation("androidx.datastore:datastore-preferences:1.1.0")
 
 
 }

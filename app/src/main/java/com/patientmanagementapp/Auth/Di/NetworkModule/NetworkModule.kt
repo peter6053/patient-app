@@ -3,6 +3,7 @@ package com.patientmanagementapp.Auth.Di.NetworkModule
 
 import com.patientmanagementapp.Auth.AuthApi.AuthApi
 import com.patientmanagementapp.Utils.Constants
+import com.patientmanagementapp.Utils.DataStoreManager
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 
@@ -22,22 +23,35 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideMoshi(): Moshi = Moshi.Builder()
-        .add(KotlinJsonAdapterFactory())
-        .build()
+    fun provideHttpLoggingInterceptor(): HttpLoggingInterceptor {
+        return HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+    }
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient {
-        val logging = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
-        }
+    fun provideAuthInterceptor(dataStoreManager: DataStoreManager): AuthInterceptor {
+        return AuthInterceptor(dataStoreManager)
+    }
 
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(
+        logging: HttpLoggingInterceptor,
+        authInterceptor: AuthInterceptor
+    ): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(logging)
+            .addInterceptor(authInterceptor)
             .build()
     }
 
+    @Provides
+    @Singleton
+    fun provideMoshi(): Moshi = Moshi.Builder()
+        .add(KotlinJsonAdapterFactory())
+        .build()
 
     @Provides
     @Singleton

@@ -110,6 +110,7 @@ fun SignupScreen(
                     }
                 }
                 null -> {}
+                is Resource.Idle<*> -> TODO()
             }
 
             PatientButton(

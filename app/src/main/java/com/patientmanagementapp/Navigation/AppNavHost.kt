@@ -3,13 +3,16 @@ package com.patientmanagementapp.Navigation
 import com.example.app.presentation.auth.LoginScreen
 import com.patientmanagementapp.Auth.Presentation.SignupScreen
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-
-
+import com.patientmanagementapp.Auth.Presentation.DataStoreViewModel
+import com.patientmanagementapp.Utils.DataStoreManager
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 
 @Composable
@@ -17,9 +20,19 @@ fun AppNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
+    val dataStoreViewModel: DataStoreViewModel = hiltViewModel()
+    val dataStoreManager = dataStoreViewModel.dataStoreManager
+    val accessToken by dataStoreManager.accessTokenFlow.collectAsState(initial = null)
+
+    val startDestination = if (!accessToken.isNullOrEmpty()) {
+        Screen.PatientList.route
+    } else {
+        Screen.Login.route
+    }
+
     NavHost(
         navController = navController,
-        startDestination = Screen.Login.route,
+        startDestination = startDestination,
         modifier = modifier
     ) {
         composable(Screen.Login.route) {
@@ -48,8 +61,9 @@ fun AppNavHost(
             )
         }
 
-//        composable(Screen.PatientList.route) {
-//            PatientListScreen()
-//        }
+        composable(Screen.PatientList.route) {
+           // PatientListScreen()
+        }
     }
 }
+
