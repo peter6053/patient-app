@@ -11,6 +11,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.patientmanagementapp.Auth.Presentation.DataStoreViewModel
+import com.patientmanagementapp.Patient.Registration.Presention.PatientRegistrationScreen
 import com.patientmanagementapp.Utils.DataStoreManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 
@@ -25,7 +26,7 @@ fun AppNavHost(
     val accessToken by dataStoreManager.accessTokenFlow.collectAsState(initial = null)
 
     val startDestination = if (!accessToken.isNullOrEmpty()) {
-        Screen.PatientList.route
+        Screen.PatientLPatientRegistrationScreen.route
     } else {
         Screen.Login.route
     }
@@ -38,7 +39,7 @@ fun AppNavHost(
         composable(Screen.Login.route) {
             LoginScreen(
                 onLoginSuccess = {
-                    navController.navigate(Screen.PatientList.route) {
+                    navController.navigate(Screen.PatientLPatientRegistrationScreen.route) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
                 },
@@ -61,7 +62,8 @@ fun AppNavHost(
             )
         }
 
-        composable(Screen.PatientList.route) {
+        composable(Screen.PatientLPatientRegistrationScreen.route) {
+            PatientRegistrationScreen(navController= navController)
            // PatientListScreen()
         }
     }
