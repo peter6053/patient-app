@@ -28,19 +28,26 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.patientmanagementapp.Components.PatientButton
+import com.patientmanagementapp.Components.PatientPasswordField
+import com.patientmanagementapp.Components.PatientTextField
 import com.patientmanagementapp.Utils.Resource
+
+
 
 @Composable
 fun SignupScreen(
+    viewModel: SignupViewModel = hiltViewModel(),
     onSignupSuccess: (() -> Unit)? = null,
-    viewModel: SignupViewModel = hiltViewModel()
+    onNavigateBack: () -> Unit,
+
 ) {
+    val signupState by viewModel.signupState.collectAsState()
+
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-
-    val signupState by viewModel.signupState.collectAsState()
 
     Box(
         modifier = Modifier
@@ -50,83 +57,77 @@ fun SignupScreen(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = "Create Account",
+                text = "Sign Up",
                 style = MaterialTheme.typography.headlineMedium
             )
 
-            OutlinedTextField(
+            PatientTextField(
                 value = firstName,
                 onValueChange = { firstName = it },
-                label = { Text("First Name") },
-                modifier = Modifier.fillMaxWidth()
+                label = "First Name"
             )
 
-            OutlinedTextField(
+            PatientTextField(
                 value = lastName,
                 onValueChange = { lastName = it },
-                label = { Text("Last Name") },
-                modifier = Modifier.fillMaxWidth()
+                label = "Last Name"
             )
 
-            OutlinedTextField(
+            PatientTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Email") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                modifier = Modifier.fillMaxWidth()
+                label = "Email"
             )
 
-            OutlinedTextField(
+            PatientPasswordField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password") },
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                modifier = Modifier.fillMaxWidth()
+                label = "Password"
             )
 
-            Button(
-                onClick = {
-                    viewModel.signup(firstName, lastName, email, password)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-            ) {
-                Text(text = "Sign Up")
-            }
-
-            when (val state = signupState) {
+            when (signupState) {
                 is Resource.Loading -> {
                     CircularProgressIndicator(modifier = Modifier.padding(top = 16.dp))
                 }
-
                 is Resource.Error -> {
                     Text(
-                        text = state.message,
+                        text = (signupState as Resource.Error).message,
                         color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.padding(top = 16.dp)
                     )
                 }
-
                 is Resource.Success -> {
-                    val data = state.data
-                    if (data != null) {
-                        // Handle success (e.g., show message or navigate)
-                        LaunchedEffect(data) {
-
-                            viewModel.resetState()
+                    val data = (signupState as Resource.Success).data
+                    LaunchedEffect(data) {
+                        data?.let {
                             onSignupSuccess?.invoke()
+                            viewModel.resetState()
                         }
                     }
                 }
-
-                null -> Unit
+                null -> {}
             }
+
+            PatientButton(
+                text = "Sign Up",
+                onClick = {
+                    viewModel.signup(
+                        firstName = firstName,
+                        lastName = lastName,
+                        email = email,
+                        password = password
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+            )
         }
     }
 }
+
 

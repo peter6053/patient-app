@@ -10,7 +10,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.patientmanagementapp.Auth.Presentation.LoginViewModel
+import com.patientmanagementapp.Navigation.Screen
 import com.patientmanagementapp.Utils.Resource
 
 
@@ -18,7 +20,8 @@ import com.patientmanagementapp.Utils.Resource
 fun LoginScreen(
     onLoginSuccess: (() -> Unit)? = null,
     viewModel: LoginViewModel = hiltViewModel(),
-    modifier: Modifier
+    onNavigateToSignup: () -> Unit,
+    navController: NavHostController
 ) {
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
@@ -63,6 +66,16 @@ fun LoginScreen(
                     .height(48.dp)
             ) {
                 Text(text = "Login")
+            }
+
+            TextButton(
+                onClick = { navController.navigate(Screen.Signup.route) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Don't have an account? Sign Up",
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
 
             // Handle login states
