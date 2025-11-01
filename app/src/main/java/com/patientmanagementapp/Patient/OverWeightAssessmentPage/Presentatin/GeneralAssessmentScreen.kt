@@ -42,7 +42,15 @@ fun OverweightAssessmentScreen(
 
     val navigateTo by viewModel.navigateTo.collectAsState(initial = null)
     LaunchedEffect(navigateTo) {
-        navigateTo?.let { navController.navigate(Screen.PatientList.route) }
+        navigateTo?.let { navController.navigate(it) }
+    }
+
+    LaunchedEffect(state) {
+        if (state is Resource.Success) {
+            navController.navigate(Screen.PatientList.route) {
+                popUpTo(Screen.OverweightAssessment.route) { inclusive = true } // optional: remove this screen from back stack
+            }
+        }
     }
 
     Column(
@@ -67,6 +75,11 @@ fun OverweightAssessmentScreen(
 
         if (state is Resource.Error) {
             Text((state as Resource.Error).message, color = MaterialTheme.colorScheme.error)
+        }
+        if (state is Resource.Success) {
+            navController.navigate(Screen.PatientList.route) {
+                popUpTo(Screen.OverweightAssessment.route) { inclusive = true } // optional: remove this screen from back stack
+            }
         }
 
     }

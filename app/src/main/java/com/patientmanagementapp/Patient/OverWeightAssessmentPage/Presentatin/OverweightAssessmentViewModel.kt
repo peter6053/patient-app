@@ -2,6 +2,8 @@ package com.patientmanagementapp.Patient.OverweightAssessment.Presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.Navigation
+import com.patientmanagementapp.Navigation.Screen
 import com.patientmanagementapp.Patient.OverWeightAssessmentPage.Dormain.models.OverWeightAssessmentResponse
 import com.patientmanagementapp.Patient.OverWeightAssessmentPage.Dormain.models.OverweightAssessmentRequest
 
@@ -69,7 +71,7 @@ class OverweightAssessmentViewModel @Inject constructor(
                 _state.value = response
 
                 if (response is Resource.Success) {
-                    _navigateTo.emit("next_screen") // Replace with actual target
+                    _navigateTo.emit(Screen.PatientList.route) // Replace with actual target
                 }
 
             } catch (e: Exception) {
