@@ -47,8 +47,9 @@ import com.patientmanagementapp.Utils.Resource
 fun GeneralAssessmentScreen(
     patientId: String,
     vitalId: String,
+    patientName: String,
     viewModel: GeneralAssessmentViewModel = hiltViewModel(),
-    navController: NavHostController
+    navController: NavHostController,
 ) {
     val visitDate by viewModel.visitDate.collectAsState()
     val generalHealth by viewModel.generalHealth.collectAsState()
@@ -202,7 +203,7 @@ fun GeneralAssessmentScreen(
                 }
 
                 Button(
-                    onClick = { viewModel.submitAssessment(patientId, vitalId) },
+                    onClick = { viewModel.submitAssessment(patientId, vitalId,patientName) },
                     enabled = state !is Resource.Loading,
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD6EAD6))
                 ) {

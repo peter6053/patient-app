@@ -3,8 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
    id("com.google.dagger.hilt.android")
-   id("kotlin-kapt")
     id("com.google.devtools.ksp")
+
 }
 
 android {
@@ -31,11 +31,12 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "1.8"
+
     }
     buildFeatures {
         compose = true
@@ -46,7 +47,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -63,38 +63,32 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    // 🧩 Room (using KSP only)
+    val roomVersion = "2.8.3"
+    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+    implementation("androidx.room:room-paging:$roomVersion")
+    ksp("androidx.room:room-compiler:$roomVersion")
 
-    // Room
-    implementation(libs.androidx.room.ktx)
-    kapt(libs.androidx.room.compiler)
-    implementation(libs.androidx.room.paging)
-
-    implementation(libs.hilt.android)
-    annotationProcessor(libs.hilt.compiler)
-   kapt(libs.hilt.android.compiler)
-    kapt(libs.androidx.hilt.compiler)
+    // 🧩 Hilt (using KSP)
+    implementation("com.google.dagger:hilt-android:2.57.2")
+    ksp("com.google.dagger:hilt-compiler:2.57.2")
     implementation(libs.androidx.hilt.navigation.compose)
 
-    //retrofit
+    // 🧩 Retrofit + Moshi
     implementation(libs.retrofit)
     implementation(libs.moshi.kotlin)
     implementation(libs.converter.moshi)
-    implementation(libs.androidx.core)
-    implementation(libs.androidx.core.ktx.v1120)
     implementation(libs.moshi.adapters)
-
-    //Material 3 Icons
-    implementation(libs.androidx.material.icons.extended)
-    // Navigation
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.material.icons.extended)
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
-    // Timber for logging
+    // 🧩 Timber
     implementation("com.jakewharton.timber:timber:5.0.1")
 
-    // Preferences DataStore
+    // 🧩 DataStore
     implementation("androidx.datastore:datastore-preferences:1.1.0")
 
-
+    // 🧩 Material Icons & Navigation
+    implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.navigation.compose)
 }

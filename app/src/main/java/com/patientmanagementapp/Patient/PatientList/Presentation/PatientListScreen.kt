@@ -21,6 +21,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.patientmanagementapp.Navigation.Screen
+import com.patientmanagementapp.Patient.Registration.Data.Local.Dao.PatientDao
+import com.patientmanagementapp.Patient.Registration.Data.Local.Entitity.RegisterPatientEntity
+import com.patientmanagementapp.Patient.Vitals.Data.Local.Dao.VitalsDao
+import com.patientmanagementapp.Patient.Vitals.Data.Local.Entity.VitalsEntity
 import com.patientmanagementapp.Utils.Resource
 
 
@@ -28,12 +32,19 @@ import com.patientmanagementapp.Utils.Resource
 @Composable
 fun PatientListScreen(
     navController: NavHostController,
-    viewModel: PatientListViewModel = hiltViewModel()
+    viewModel: PatientListViewModel = hiltViewModel(),
+
 ) {
     val state by viewModel.state.collectAsState()
+    var localPatients by remember { mutableStateOf(listOf<RegisterPatientEntity>()) }
+    var localVitals by remember { mutableStateOf(listOf<VitalsEntity>()) }
 
     LaunchedEffect(Unit) {
+
+        localPatients = viewModel.getLocalPatients()
+        localVitals = viewModel.getLocalVitals()
         viewModel.loadPatients()
+
     }
 
     Scaffold(
@@ -46,10 +57,9 @@ fun PatientListScreen(
                 ),
                 modifier = Modifier.shadow(4.dp)
             )
-
         },
 
-                floatingActionButton = {
+        floatingActionButton = {
             FloatingActionButton(
                 onClick = { navController.navigate(Screen.PatientLPatientRegistrationScreen.route) }
             ) {
@@ -63,23 +73,22 @@ fun PatientListScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color(0xFFFFF8E1)) // light yellow background
+                .background(Color(0xFFFFF8E1))
         ) {
             when (state) {
-                is Resource.Loading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                }
+                is Resource.Loading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
 
-                is Resource.Error -> {
-                    Text(
-                        text = (state as Resource.Error).message,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
+                is Resource.Error -> Text(
+                    text = (state as Resource.Error).message,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.align(Alignment.Center)
+                )
 
                 is Resource.Success -> {
-                    val patients = (state as Resource.Success).data?.data ?: emptyList()
+                    LaunchedEffect(state) {
+                        localPatients = viewModel.getLocalPatients()
+                        localVitals = viewModel.getLocalVitals()
+                    }
 
                     Column(
                         modifier = Modifier
@@ -87,7 +96,6 @@ fun PatientListScreen(
                             .padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        // Title
                         Text(
                             text = "Patient Listing",
                             style = MaterialTheme.typography.titleLarge.copy(
@@ -97,22 +105,14 @@ fun PatientListScreen(
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
 
-                        // Date field
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
                                 .padding(8.dp)
                         ) {
-                            Text(
-                                text = "Date",
-                                modifier = Modifier.weight(1f),
-                                fontWeight = FontWeight.Medium
-                            )
-                            Text(
-                                text = "..... / ..... / ......",
-                                modifier = Modifier.weight(2f)
-                            )
+                            Text("Date", modifier = Modifier.weight(1f), fontWeight = FontWeight.Medium)
+                            Text("..... / ..... / ......", modifier = Modifier.weight(2f))
                         }
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -131,18 +131,20 @@ fun PatientListScreen(
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .weight(1f) // take remaining height
+                                .weight(1f)
                                 .border(0.5.dp, Color(0xFF9CCC65))
                         ) {
-                            itemsIndexed(patients) { index, patient ->
+                            itemsIndexed(localPatients) { index, patient ->
                                 val bgColor = if (index % 2 == 0) Color.White else Color(0xFFE8F5E9)
-                                val bmiStatus = when (patient.firstname.lowercase()) {
-                                    "john" -> "Normal"
-                                    "jane" -> "Overweight"
-                                    "james" -> "Underweight"
-                                    "julia" -> "Normal"
-                                    else -> "Normal"
-                                }
+
+                                val vitals = localVitals.find { it.patient_id == patient.unique }
+                                val bmiStatus = vitals?.bmi?.toFloatOrNull()?.let { bmi ->
+                                    when {
+                                        bmi < 18.5f -> "Underweight"
+                                        bmi in 18.5f..24.9f -> "Normal"
+                                        else -> "Overweight"
+                                    }
+                                } ?: "Underweight"
 
                                 Row(
                                     modifier = Modifier
@@ -151,16 +153,12 @@ fun PatientListScreen(
                                         .padding(vertical = 8.dp)
                                         .clickable { /* navigate to details if needed */ }
                                 ) {
-                                    TableCell(
-                                        "${patient.firstname} ${patient.lastname}",
-                                        Modifier.weight(2f)
-                                    )
+                                    TableCell("${patient.firstname} ${patient.lastname}", Modifier.weight(2f))
                                     TableCell(patient.dob ?: "N/A", Modifier.weight(1f))
                                     TableCell(bmiStatus, Modifier.weight(1f))
                                 }
                             }
                         }
-
                     }
                 }
 
@@ -190,6 +188,7 @@ fun TableCell(text: String, modifier: Modifier) {
         modifier = modifier.padding(horizontal = 8.dp)
     )
 }
+
 
 
 
