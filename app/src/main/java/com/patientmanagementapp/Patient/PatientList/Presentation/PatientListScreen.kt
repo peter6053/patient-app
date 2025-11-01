@@ -10,6 +10,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,26 +28,29 @@ import com.patientmanagementapp.Patient.Registration.Data.Local.Dao.PatientDao
 import com.patientmanagementapp.Patient.Registration.Data.Local.Entitity.RegisterPatientEntity
 import com.patientmanagementapp.Patient.Vitals.Data.Local.Dao.VitalsDao
 import com.patientmanagementapp.Patient.Vitals.Data.Local.Entity.VitalsEntity
+import com.patientmanagementapp.Utils.ReportHeader
 import com.patientmanagementapp.Utils.Resource
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PatientListScreen(
     navController: NavHostController,
     viewModel: PatientListViewModel = hiltViewModel(),
-
 ) {
     val state by viewModel.state.collectAsState()
     var localPatients by remember { mutableStateOf(listOf<RegisterPatientEntity>()) }
     var localVitals by remember { mutableStateOf(listOf<VitalsEntity>()) }
+    var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
 
     LaunchedEffect(Unit) {
-
         localPatients = viewModel.getLocalPatients()
         localVitals = viewModel.getLocalVitals()
         viewModel.loadPatients()
-
     }
 
     Scaffold(
@@ -55,18 +61,30 @@ fun PatientListScreen(
                     containerColor = Color(0xFFFFF8E1),
                     titleContentColor = Color.Black
                 ),
-                modifier = Modifier.shadow(4.dp)
+                modifier = Modifier.shadow(4.dp),
+                actions = {
+                    IconButton(onClick = {
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(0)
+                        }
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.ExitToApp,
+                            contentDescription = "Logout",
+                            tint = Color.Black
+                        )
+                    }
+                }
             )
         },
 
-        floatingActionButton = {
+                floatingActionButton = {
             FloatingActionButton(
                 onClick = { navController.navigate(Screen.PatientLPatientRegistrationScreen.route) }
             ) {
                 Text("+")
             }
         },
-
         containerColor = Color(0xFFFFF8E1)
     ) { paddingValues ->
         Box(
@@ -77,13 +95,11 @@ fun PatientListScreen(
         ) {
             when (state) {
                 is Resource.Loading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-
                 is Resource.Error -> Text(
                     text = (state as Resource.Error).message,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.align(Alignment.Center)
                 )
-
                 is Resource.Success -> {
                     LaunchedEffect(state) {
                         localPatients = viewModel.getLocalPatients()
@@ -105,15 +121,13 @@ fun PatientListScreen(
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
-                                .padding(8.dp)
-                        ) {
-                            Text("Date", modifier = Modifier.weight(1f), fontWeight = FontWeight.Medium)
-                            Text("..... / ..... / ......", modifier = Modifier.weight(2f))
-                        }
+                        ReportHeader(
+                            selectedDate = selectedDate,
+                            onDateSelected = { date ->
+                                selectedDate = date
+                                viewModel.filterPatientsByDate(date)
+                            }
+                        )
 
                         Spacer(modifier = Modifier.height(16.dp))
 
@@ -136,7 +150,6 @@ fun PatientListScreen(
                         ) {
                             itemsIndexed(localPatients) { index, patient ->
                                 val bgColor = if (index % 2 == 0) Color.White else Color(0xFFE8F5E9)
-
                                 val vitals = localVitals.find { it.patient_id == patient.unique }
                                 val bmiStatus = vitals?.bmi?.toFloatOrNull()?.let { bmi ->
                                     when {
@@ -151,7 +164,6 @@ fun PatientListScreen(
                                         .fillMaxWidth()
                                         .background(bgColor)
                                         .padding(vertical = 8.dp)
-                                        .clickable { /* navigate to details if needed */ }
                                 ) {
                                     TableCell("${patient.firstname} ${patient.lastname}", Modifier.weight(2f))
                                     TableCell(patient.dob ?: "N/A", Modifier.weight(1f))
@@ -161,12 +173,13 @@ fun PatientListScreen(
                         }
                     }
                 }
-
                 else -> Unit
             }
         }
     }
 }
+
+
 
 @Composable
 fun TableHeaderCell(text: String, modifier: Modifier) {

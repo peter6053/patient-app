@@ -16,8 +16,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flatten
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 import kotlin.collections.emptyList
 
@@ -35,7 +38,6 @@ class PatientListViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = Resource.Loading()
             try {
-                // ✅ Step 1: Load local patients first
                 val localPatients = patientDao.getAllPatients()
                 val localWithBmi = localPatients.map { it.toPatientWithBmi(vitalsDao) }
                 if (localWithBmi.isNotEmpty()) {
@@ -76,6 +78,47 @@ class PatientListViewModel @Inject constructor(
             }
         }
     }
+    fun filterPatientsByDate(selectedDate: LocalDate?) {
+        viewModelScope.launch {
+            _state.value = Resource.Loading()
+            try {
+                if (selectedDate == null) {
+                    // No date selected → show all again
+                    loadPatients()
+                    return@launch
+                }
+
+                val allPatients = patientDao.getAllPatients()
+                val allVitals = vitalsDao.getAllVitals()
+
+                val filtered = allPatients.filter { patient ->
+                    allVitals.any { vital ->
+                        vital.patient_id == patient.unique &&
+                                vital.visit_date.startsWith(selectedDate.toString())
+                    }
+                }
+
+                val filteredWithBmi = filtered.map { it.toPatientWithBmi(vitalsDao) }
+
+                if (filteredWithBmi.isNotEmpty()) {
+                    _state.value = Resource.Success(filteredWithBmi)
+                } else {
+                    _state.value = Resource.Error("No records found for ${selectedDate}")
+                }
+
+            } catch (e: Exception) {
+                _state.value = Resource.Error("Failed to filter by date: ${e.message}")
+            }
+        }
+    }
+
+
+
+
+
+
+
+
 
     suspend fun getLocalPatients(): List<RegisterPatientEntity> = patientDao.getAllPatients()
     suspend fun getLocalVitals(): List<VitalsEntity> = vitalsDao.getAllVitals()
