@@ -34,6 +34,26 @@ Gradle Kotlin DSL - An alternative syntax for writing Gradle build scripts using
 Version Catalogs - A scalable way of maintaining dependencies and plugins in a multi-module project.
 Convention Plugins - A way to encapsulate and reuse common build configuration in Gradle, see here
 
+## App Architecture
+A well-planned architecture is extremely important for any Android project; It makes it easier to maintain the app as the codebase grows and the team expands. This repo uses the MVVM pattern with clean architecture to have decoupled, testable, and maintainable code. MVVM separates views (Activities, Fragments, or Composables) from the app's business logic. However, as the codebase grows, ViewModels start bloating, and separation of responsibilities becomes hard hence the need to use MVVM with clean architecture.
+
+Why Clean Architecture and Modularization?
+Allows the app to scale easily
+Easier onboarding of new team members
+Easier to test code
+Makes it easier to enforce coder ownership This repo uses MVVM with Clean Architecture with the following modules:
+Data
+Contains repositories, data sources, and model classes. This layer hides the implementation details and data sources from the outside.
+
+Domain
+This module encapsulates complex business logic or simple logic that multiple ViewModels reuse. It contains all the use cases of the application and models independent of any framework-specific dependencies and represents the business logic.
+
+Presentation
+Contains views (in this app, Composable) and ViewModels. The views post events to the ViewModel and subscribe to the updated state.
+
+Design System
+Contains reusable UI components, Color, Typography, and Theme that can be reused across various modules
+
 ## Dependencies
 All the dependencies (external libraries) are managed using version catalogs and defined in a single place gradle/libs.versions.toml file. This is a scalable approach to manage dependencies and use the same dependency version across all modules.
 ## Screenshots
