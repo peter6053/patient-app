@@ -8,11 +8,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.patientmanagementapp.Auth.Presentation.DataStoreViewModel
 import com.patientmanagementapp.Patient.PatientList.Presentation.PatientListScreen
 import com.patientmanagementapp.Patient.Registration.Presention.PatientRegistrationScreen
+import com.patientmanagementapp.Patient.Vitals.Presentation.VitalsScreen
 import com.patientmanagementapp.Utils.DataStoreManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 
@@ -42,6 +45,17 @@ fun AppNavHost(
             PatientListScreen(navController= navController)
             // PatientListScreen()
         }
+        composable(
+            route = Screen.VitalsScreen.route,
+            arguments = listOf(navArgument("patientId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val patientId = backStackEntry.arguments?.getString("patientId") ?: ""
+            VitalsScreen(
+                navController = navController,
+                patientId = patientId
+            )
+        }
+
         composable(Screen.Login.route) {
             LoginScreen(
                 onLoginSuccess = {

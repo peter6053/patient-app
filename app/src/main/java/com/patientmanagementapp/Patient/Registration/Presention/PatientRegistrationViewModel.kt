@@ -7,8 +7,10 @@ import com.patientmanagementapp.Patient.Registration.Dormain.Models.RegisterPati
 import com.patientmanagementapp.Patient.Registration.Dormain.UseCase.RegisterPatientUseCase
 import com.patientmanagementapp.Utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -44,16 +46,22 @@ class PatientRegistrationViewModel @Inject constructor(
     init {
         _patientId.value = generatePatientId()
     }
-
+    private val _navigateToVitals = MutableSharedFlow<String>()
+    val navigateToVitals = _navigateToVitals.asSharedFlow()
     private fun generatePatientId(): String {
-        return UUID.randomUUID().toString().replace("-", "")
+        // Generate a UUID, remove non-digit characters, and take a fixed length
+        val digitsOnly = UUID.randomUUID().toString().filter { it.isDigit() }
+        // Ensure a minimum length (e.g., 12 digits), pad if needed
+        return digitsOnly.padEnd(12, '0').take(12)
     }
+
 
     fun onFirstNameChanged(value: String) { _firstName.value = value }
     fun onLastNameChanged(value: String) { _lastName.value = value }
     fun onDobChanged(value: String) { _dob.value = value }
     fun onGenderChanged(value: String) { _gender.value = value }
     fun onRegDateChanged(value: String) { _regDate.value = value }
+
 
     fun registerPatient() {
         viewModelScope.launch {
@@ -66,7 +74,12 @@ class PatientRegistrationViewModel @Inject constructor(
                 reg_date = _regDate.value,
                 unique = _patientId.value
             )
-            _state.value = registerPatientUseCase(request)
+            val result = registerPatientUseCase(request)
+            _state.value = result
+
+            if (result is Resource.Success && result.data!!.data.proceed == 0) {
+                _navigateToVitals.emit(result.data.message)
+            }
         }
     }
 }

@@ -27,6 +27,7 @@ fun PatientRegistrationScreen(
     val dob by viewModel.dob.collectAsState()
     val gender by viewModel.gender.collectAsState()
     val regDate by viewModel.regDate.collectAsState()
+    val patientId by viewModel.patientId.collectAsState()
     val state by viewModel.state.collectAsState()
 
     val genderOptions = listOf("Male", "Female", "Other")
@@ -90,14 +91,17 @@ fun PatientRegistrationScreen(
 
                 is Resource.Success -> {
                     val response = (state as Resource.Success).data
-                    if (response != null && response.data.proceed == 1) {
-                        LaunchedEffect(response) {
-                            navController.navigate(Screen.VitalsScreen.route) {
-                                popUpTo(Screen.PatientLPatientRegistrationScreen.route) { inclusive = true }
+                   // val patientId = response?.data?.proceed
+                    if (patientId.isNotEmpty()) {
+                        LaunchedEffect(patientId) {
+                            navController.navigate(Screen.VitalsScreen.createRoute(patientId)) {
+                                popUpTo(Screen.VitalsScreen.route) { inclusive = true }
                             }
                         }
                     }
                 }
+
+
 
                 else -> Unit
             }

@@ -1,0 +1,102 @@
+package com.patientmanagementapp.Vitals.presentation
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.patientmanagementapp.Navigation.Screen
+import com.patientmanagementapp.Patient.Vitals.Dormain.Usecases.SubmitVitalsUseCase
+import com.patientmanagementapp.Patient.Vitals.Dormain.VitalsRequestBody
+import com.patientmanagementapp.Patient.Vitals.Dormain.VitalsResonseBody
+
+import com.patientmanagementapp.Utils.Resource
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+@HiltViewModel
+class VitalsViewModel @Inject constructor(
+    private val submitVitalsUseCase: SubmitVitalsUseCase
+) : ViewModel() {
+
+    // Input state
+    private val _height = MutableStateFlow("")
+    val height = _height.asStateFlow()
+
+    private val _weight = MutableStateFlow("")
+    val weight = _weight.asStateFlow()
+
+    private val _bmi = MutableStateFlow("")
+    val bmi = _bmi.asStateFlow()
+
+    private val _visitDate = MutableStateFlow("")
+    val visitDate = _visitDate.asStateFlow()
+
+    // API response state
+    private val _state = MutableStateFlow<Resource<VitalsResonseBody>>(Resource.Idle())
+    val state = _state.asStateFlow()
+
+    // Navigation event
+    private val _navigateTo = MutableSharedFlow<String>()
+    val navigateTo = _navigateTo.asSharedFlow() // Observe this in the UI
+
+    // Update input fields
+    fun onHeightChanged(value: String) {
+        _height.value = value
+        calculateBmi()
+    }
+
+    fun onWeightChanged(value: String) {
+        _weight.value = value
+        calculateBmi()
+    }
+
+    fun onVisitDateChanged(value: String) {
+        _visitDate.value = value
+    }
+
+    // Calculate BMI whenever height or weight changes
+    private fun calculateBmi() {
+        val h = _height.value.toFloatOrNull() ?: 0f
+        val w = _weight.value.toFloatOrNull() ?: 0f
+        if (h > 0f && w > 0f) {
+            val hMeters = h / 100f
+            _bmi.value = String.format("%.2f", w / (hMeters * hMeters))
+        } else {
+            _bmi.value = ""
+        }
+    }
+
+    // Submit Vitals to API
+    fun submitVitals(patientId: String) {
+        viewModelScope.launch {
+            _state.value = Resource.Loading()
+            try {
+                val request = VitalsRequestBody(
+                    patient_id = patientId,
+                    height = _height.value,
+                    weight = _weight.value,
+                    bmi = _bmi.value,
+                    visit_date = _visitDate.value
+                )
+                val response = submitVitalsUseCase(request)
+                _state.value = response
+
+                if (response is Resource.Success) {
+                    val bmiValue = _bmi.value.toFloatOrNull() ?: 0f
+                    val target = if (bmiValue <= 25f) {
+                        Screen.GeneralAssessment.route
+                    } else {
+                        Screen.OverweightAssessment.route
+                    }
+                    _navigateTo.emit(target)
+                }
+
+            } catch (e: Exception) {
+                _state.value = Resource.Error(e.message ?: "Unknown error occurred")
+            }
+        }
+    }
+}
