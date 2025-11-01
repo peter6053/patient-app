@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.patientmanagementapp.Auth.Presentation.DataStoreViewModel
 import com.patientmanagementapp.Patient.GeneraAssessmentPage.Presentatin.GeneralAssessmentScreen
+import com.patientmanagementapp.Patient.OverWeightAssessmentPage.Presentatin.OverweightAssessmentScreen
 import com.patientmanagementapp.Patient.PatientList.Presentation.PatientListScreen
 import com.patientmanagementapp.Patient.Registration.Presention.PatientRegistrationScreen
 import com.patientmanagementapp.Patient.Vitals.Presentation.VitalsScreen
@@ -65,11 +66,11 @@ fun AppNavHost(
         ) { backStackEntry ->
             val patientId = backStackEntry.arguments?.getString(Screen.OverweightAssessment.ARG_PATIENT_ID) ?: ""
             val vitalId = backStackEntry.arguments?.getString(Screen.OverweightAssessment.ARG_VITAL_ID) ?: ""
-//            OverweightAssessmentScreen(
-//                navController = navController,
-//                patientId = patientId,
-//                vitalId = vitalId
-//            )
+            OverweightAssessmentScreen(
+                navController = navController,
+                patientId = patientId,
+               vitalId = vitalId
+           )
         }
 
 
