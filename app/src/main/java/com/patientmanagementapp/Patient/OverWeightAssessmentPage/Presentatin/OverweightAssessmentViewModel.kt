@@ -49,8 +49,21 @@ class OverweightAssessmentViewModel @Inject constructor(
 
     fun onVisitDateChanged(value: String) { _visitDate.value = value }
     fun onGeneralHealthChanged(value: String) { _generalHealth.value = value }
-    fun onOnDietChanged(value: String) { _onDiet.value = value }
-    fun onOnDrugsChanged(value: String) { _onDrugs.value = value }
+    fun onOnDietChanged(value: String) {
+        _onDiet.value = value
+        if (value.equals("Yes", ignoreCase = true)) {
+            _onDrugs.value = "No"
+        }
+    }
+
+    fun onOnDrugsChanged(value: String) {
+        _onDrugs.value = value
+        // If onDrugs is "Yes", then onDiet should be "No"
+        if (value.equals("Yes", ignoreCase = true)) {
+            _onDiet.value = "No"
+        }
+    }
+
     fun onCommentsChanged(value: String) { _comments.value = value }
 
     fun submitAssessment(patientId: String, vitalId: String) {
@@ -94,8 +107,8 @@ class OverweightAssessmentViewModel @Inject constructor(
                 false
             }
 
-            _onDrugs.value.isBlank() -> {
-                _validationError.value = "Please select if the patient is currently using drugs."
+            _onDiet.value.isBlank() -> {
+                _validationError.value = "Please select if the patient has been on diet?"
                 false
             }
             _comments.value.isBlank() -> {

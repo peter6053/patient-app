@@ -32,7 +32,7 @@ fun DatePickerField(
     var text by remember { mutableStateOf(value) }
 
     val calendar = Calendar.getInstance()
-    val dateFormat = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     val datePickerDialog = DatePickerDialog(
         context,

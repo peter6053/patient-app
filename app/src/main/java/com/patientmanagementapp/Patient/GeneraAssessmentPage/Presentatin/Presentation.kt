@@ -27,14 +27,25 @@ class GeneralAssessmentViewModel @Inject constructor(
     val onDrugs = MutableStateFlow("")
     val comments = MutableStateFlow("")
 
+    // 🔹 Validation error messages
+    val visitDateError = MutableStateFlow<String?>(null)
+    val generalHealthError = MutableStateFlow<String?>(null)
+    val onDietError = MutableStateFlow<String?>(null)
+    val onDrugsError = MutableStateFlow<String?>(null)
+    val oncommebtError = MutableStateFlow<String?>(null)
+
     private val _state = MutableStateFlow<Resource<Unit>>(Resource.Idle())
     val state: StateFlow<Resource<Unit>> = _state
 
     private val _navigateTo = MutableSharedFlow<String>()
     val navigateTo = _navigateTo.asSharedFlow()
+    val validationError = MutableStateFlow<String?>(null)
+
 
     fun submitAssessment(patientId: String, vitalId: String) {
         viewModelScope.launch {
+            if (!validateInput()) return@launch
+
             val request = AddVisitRequest(
                 patient_id = patientId,
                 vital_id = vitalId,
@@ -46,13 +57,39 @@ class GeneralAssessmentViewModel @Inject constructor(
             )
 
             _state.value = Resource.Loading()
-            when(val result = submitUseCase(request)) {
+            when (val result = submitUseCase(request)) {
                 is Resource.Success -> {
                     _state.value = Resource.Success(Unit)
                     _navigateTo.emit(Screen.PatientList.route)
                 }
+
                 is Resource.Error -> _state.value = Resource.Error(result.message)
                 else -> Unit
+            }
+        }
+    }
+
+    private fun validateInput(): Boolean {
+        return when {
+            visitDate.value.isBlank() -> {
+                validationError.value = "Please select a visit date."
+                false
+            }
+            generalHealth.value.isBlank() -> {
+                validationError.value = "Please select general health."
+                false
+            }
+            onDiet.value.isBlank() -> {
+                validationError.value = "Please indicate if the patient is on a diet."
+                false
+            }
+            onDrugs.value.isBlank() -> {
+                validationError.value = "Please indicate if the patient is on drugs."
+                false
+            }
+            else -> {
+                validationError.value = null
+                true
             }
         }
     }

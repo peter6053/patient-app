@@ -94,7 +94,7 @@ fun OverweightAssessmentScreen(
             shape = RoundedCornerShape(24.dp)
         ) {
             Text(
-                text = "Patient Visit Form B",
+                text = "Patient Visit Form A",
                 style = MaterialTheme.typography.titleMedium.copy(color = Color.Black),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
@@ -132,7 +132,7 @@ fun OverweightAssessmentScreen(
 
 
 
-            Text(" Are you Currently using drugs?",
+            Text(" Have you been on diet to loose weight?",
                 style = MaterialTheme.typography.titleMedium.copy(color = Color.Black)
             )
             drugsOptions.forEach { option ->
@@ -140,12 +140,12 @@ fun OverweightAssessmentScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { viewModel.onOnDrugsChanged(option) }
+                        .clickable { viewModel.onOnDietChanged(option) }
                         .padding(vertical = 2.dp)
                 ) {
                     RadioButton(
-                        selected = onDrugs == option,
-                        onClick = { viewModel.onOnDrugsChanged(option) }
+                        selected = onDiet == option,
+                        onClick = { viewModel.onOnDietChanged(option) }
                     )
                     Text(
                         text = option,
