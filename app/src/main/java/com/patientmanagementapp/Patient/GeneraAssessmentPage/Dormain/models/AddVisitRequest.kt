@@ -1,0 +1,11 @@
+package com.patientmanagementapp.Patient.GeneraAssessmentPage.Dormain.models
+
+data class AddVisitRequest(
+    val comments: String,
+    val general_health: String,
+    val on_diet: String,
+    val on_drugs: String,
+    val patient_id: String,
+    val visit_date: String,
+    val vital_id: String
+)

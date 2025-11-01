@@ -8,6 +8,20 @@ sealed class Screen(val route: String) {
     object VitalsScreen : Screen("vitals_screen/{patientId}") {
         fun createRoute(patientId: String) = "vitals_screen/$patientId"
     }
-    object GeneralAssessment : Screen("general_assessment")
-    object OverweightAssessment : Screen("overweight_assessment")
+    object GeneralAssessment : Screen("general_assessment") {
+
+        fun createRoute(patientId: String, vitalId: String): String {
+            return "$route?patientId=$patientId&vitalId=$vitalId"
+        }
+    }
+
+    object OverweightAssessment : Screen("overweight_assessment") {
+        fun createRoute(patientId: String, vitalId: String): String {
+            return "$route/$patientId/$vitalId"
+        }
+
+        const val ARG_PATIENT_ID = "patientId"
+        const val ARG_VITAL_ID = "vitalId"
+    }
+
 }

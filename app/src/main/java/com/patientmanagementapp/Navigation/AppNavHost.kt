@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.patientmanagementapp.Auth.Presentation.DataStoreViewModel
+import com.patientmanagementapp.Patient.GeneraAssessmentPage.Presentatin.GeneralAssessmentScreen
 import com.patientmanagementapp.Patient.PatientList.Presentation.PatientListScreen
 import com.patientmanagementapp.Patient.Registration.Presention.PatientRegistrationScreen
 import com.patientmanagementapp.Patient.Vitals.Presentation.VitalsScreen
@@ -55,6 +56,40 @@ fun AppNavHost(
                 patientId = patientId
             )
         }
+        composable(
+            route = "${Screen.OverweightAssessment.route}/{${Screen.OverweightAssessment.ARG_PATIENT_ID}}/{${Screen.OverweightAssessment.ARG_VITAL_ID}}",
+            arguments = listOf(
+                navArgument(Screen.OverweightAssessment.ARG_PATIENT_ID) { type = NavType.StringType },
+                navArgument(Screen.OverweightAssessment.ARG_VITAL_ID) { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val patientId = backStackEntry.arguments?.getString(Screen.OverweightAssessment.ARG_PATIENT_ID) ?: ""
+            val vitalId = backStackEntry.arguments?.getString(Screen.OverweightAssessment.ARG_VITAL_ID) ?: ""
+//            OverweightAssessmentScreen(
+//                navController = navController,
+//                patientId = patientId,
+//                vitalId = vitalId
+//            )
+        }
+
+
+        composable(
+            route = "${Screen.GeneralAssessment.route}?patientId={patientId}&vitalId={vitalId}",
+            arguments = listOf(
+                navArgument("patientId") { type = NavType.StringType },
+                navArgument("vitalId") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val patientId = backStackEntry.arguments?.getString("patientId") ?: ""
+            val vitalId = backStackEntry.arguments?.getString("vitalId") ?: ""
+
+            GeneralAssessmentScreen(
+                navController = navController,
+                patientId = patientId,
+                vitalId = vitalId
+            )
+        }
+
 
         composable(Screen.Login.route) {
             LoginScreen(

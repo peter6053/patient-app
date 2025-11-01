@@ -86,12 +86,15 @@ class VitalsViewModel @Inject constructor(
 
                 if (response is Resource.Success) {
                     val bmiValue = _bmi.value.toFloatOrNull() ?: 0f
-                    val target = if (bmiValue <= 25f) {
-                        Screen.GeneralAssessment.route
+                    val vitalId = response.data?.data?.id?.toString() ?: "" // <-- get the ID from response
+
+                    val targetScreen = if (bmiValue <= 25f) {
+                        Screen.GeneralAssessment.createRoute(patientId, vitalId)
                     } else {
-                        Screen.OverweightAssessment.route
+                        Screen.OverweightAssessment.createRoute(patientId, vitalId)
                     }
-                    _navigateTo.emit(target)
+
+                    _navigateTo.emit(targetScreen)
                 }
 
             } catch (e: Exception) {
