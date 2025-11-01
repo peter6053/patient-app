@@ -57,7 +57,6 @@ class VitalsViewModel @Inject constructor(
         _visitDate.value = value
     }
 
-    // Calculate BMI whenever height or weight changes
     private fun calculateBmi() {
         val h = _height.value.toFloatOrNull() ?: 0f
         val w = _weight.value.toFloatOrNull() ?: 0f
@@ -69,9 +68,24 @@ class VitalsViewModel @Inject constructor(
         }
     }
 
-    // Submit Vitals to API
+    private fun validateInput(): String? {
+        return when {
+            _visitDate.value.isBlank() -> "Please select a visit date."
+            _height.value.isBlank() -> "Please enter height."
+            _weight.value.isBlank() -> "Please enter weight."
+            _bmi.value.isBlank() -> "BMI could not be calculated. Check your inputs."
+            else -> null
+        }
+    }
+
     fun submitVitals(patientId: String) {
         viewModelScope.launch {
+            val validationError = validateInput()
+            if (validationError != null) {
+                _state.value = Resource.Error(validationError)
+                return@launch
+            }
+
             _state.value = Resource.Loading()
             try {
                 val request = VitalsRequestBody(
@@ -81,12 +95,13 @@ class VitalsViewModel @Inject constructor(
                     bmi = _bmi.value,
                     visit_date = _visitDate.value
                 )
+
                 val response = submitVitalsUseCase(request)
                 _state.value = response
 
                 if (response is Resource.Success) {
                     val bmiValue = _bmi.value.toFloatOrNull() ?: 0f
-                    val vitalId = response.data?.data?.id?.toString() ?: "" // <-- get the ID from response
+                    val vitalId = response.data?.data?.id?.toString() ?: ""
 
                     val targetScreen = if (bmiValue <= 25f) {
                         Screen.GeneralAssessment.createRoute(patientId, vitalId)

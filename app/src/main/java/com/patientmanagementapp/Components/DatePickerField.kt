@@ -6,13 +6,18 @@ import android.widget.DatePicker
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -27,7 +32,7 @@ fun DatePickerField(
     var text by remember { mutableStateOf(value) }
 
     val calendar = Calendar.getInstance()
-    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    val dateFormat = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
 
     val datePickerDialog = DatePickerDialog(
         context,
@@ -42,16 +47,32 @@ fun DatePickerField(
         calendar.get(Calendar.DAY_OF_MONTH)
     )
 
-    Column(modifier = modifier.padding(vertical = 4.dp)) {
-        Text(text = label)
+    Column(
+        modifier = modifier.padding(vertical = 2.dp)
+    ) {
+        Text(
+            text = label,
+            color = Color.Black,
+            fontSize = 14.sp,
+            modifier = Modifier.padding(bottom = 2.dp)
+        )
         OutlinedTextField(
             value = text,
-            onValueChange = { },
+            onValueChange = {},
             modifier = Modifier
                 .fillMaxWidth()
+                .height(48.dp)
                 .clickable { datePickerDialog.show() },
             readOnly = true,
-            enabled = false
+            enabled = false,
+            textStyle = LocalTextStyle.current.copy(color = Color.Black, fontSize = 14.sp),
+            colors = OutlinedTextFieldDefaults.colors(
+                disabledTextColor = Color.Black,
+                disabledBorderColor = Color.White,
+                disabledLabelColor = Color.Black,
+                disabledTrailingIconColor = Color.Black
+            )
         )
     }
 }
+

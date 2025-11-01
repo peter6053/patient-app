@@ -54,6 +54,28 @@ class PatientRegistrationViewModel @Inject constructor(
         // Ensure a minimum length (e.g., 12 digits), pad if needed
         return digitsOnly.padEnd(12, '0').take(12)
     }
+    fun validateAndRegister() {
+        when {
+            _firstName.value.isBlank() -> {
+                _state.value = Resource.Error("First name is required")
+            }
+            _lastName.value.isBlank() -> {
+                _state.value = Resource.Error("Last name is required")
+            }
+            _dob.value.isBlank() -> {
+                _state.value = Resource.Error("Date of birth is required")
+            }
+            _gender.value.isBlank() -> {
+                _state.value = Resource.Error("Gender is required")
+            }
+            _regDate.value.isBlank() -> {
+                _state.value = Resource.Error("Registration date is required")
+            }
+            else -> {
+                registerPatient()
+            }
+        }
+    }
 
 
     fun onFirstNameChanged(value: String) { _firstName.value = value }

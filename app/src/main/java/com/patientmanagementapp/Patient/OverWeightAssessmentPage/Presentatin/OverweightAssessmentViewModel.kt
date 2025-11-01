@@ -23,7 +23,6 @@ class OverweightAssessmentViewModel @Inject constructor(
     private val submitUseCase: SubmitOverweightAssessmentUseCase
 ) : ViewModel() {
 
-    // Input fields
     private val _visitDate = MutableStateFlow("")
     val visitDate = _visitDate.asStateFlow()
 
@@ -39,11 +38,12 @@ class OverweightAssessmentViewModel @Inject constructor(
     private val _comments = MutableStateFlow("")
     val comments = _comments.asStateFlow()
 
-    // API response state
     private val _state = MutableStateFlow<Resource<OverWeightAssessmentResponse>>(Resource.Idle())
     val state = _state.asStateFlow()
 
-    // Navigation
+    private val _validationError = MutableStateFlow<String?>(null)
+    val validationError = _validationError.asStateFlow()
+
     private val _navigateTo = MutableSharedFlow<String>()
     val navigateTo = _navigateTo.asSharedFlow()
 
@@ -55,6 +55,8 @@ class OverweightAssessmentViewModel @Inject constructor(
 
     fun submitAssessment(patientId: String, vitalId: String) {
         viewModelScope.launch {
+            if (!validateInputs()) return@launch
+
             _state.value = Resource.Loading()
             try {
                 val request = OverweightAssessmentRequest(
@@ -71,7 +73,7 @@ class OverweightAssessmentViewModel @Inject constructor(
                 _state.value = response
 
                 if (response is Resource.Success) {
-                    _navigateTo.emit(Screen.PatientList.route) // Replace with actual target
+                    _navigateTo.emit(Screen.PatientList.route)
                 }
 
             } catch (e: Exception) {
@@ -79,4 +81,32 @@ class OverweightAssessmentViewModel @Inject constructor(
             }
         }
     }
+
+
+    private fun validateInputs(): Boolean {
+        return when {
+            _visitDate.value.isBlank() -> {
+                _validationError.value = "Please select a visit date."
+                false
+            }
+            _generalHealth.value.isBlank() -> {
+                _validationError.value = "Please select the general health option."
+                false
+            }
+
+            _onDrugs.value.isBlank() -> {
+                _validationError.value = "Please select if the patient is currently using drugs."
+                false
+            }
+            _comments.value.isBlank() -> {
+                _validationError.value = "Please enter your comments."
+                false
+            }
+            else -> {
+                _validationError.value = null
+                true
+            }
+        }
+    }
 }
+

@@ -1,17 +1,28 @@
 package com.patientmanagementapp.Patient.Vitals.Presentation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -33,7 +44,7 @@ fun VitalsScreen(
     val bmi by viewModel.bmi.collectAsState()
     val state by viewModel.state.collectAsState()
 
-    val scope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
 
     // Observe navigation events
     LaunchedEffect(Unit) {
@@ -44,46 +55,86 @@ fun VitalsScreen(
         }
     }
 
-    Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text("Patient Vitals", style = MaterialTheme.typography.headlineMedium)
-
-        DatePickerField(
-            label = "Visit Date",
-            value = visitDate,
-            onDateSelected =  { viewModel.onVisitDateChanged(it) },
-        )
-
-        PatientTextField(
-            value = height,
-            onValueChange = { viewModel.onHeightChanged(it) },
-            label = "Height (CM)"
-        )
-
-        PatientTextField(
-            value = weight,
-            onValueChange = { viewModel.onWeightChanged(it) },
-            label = "Weight (KG)"
-        )
-
-        PatientTextField(
-            value = bmi,
-            onValueChange = {},
-            label = "BMI",
-            modifier = Modifier.fillMaxWidth(),
-            isPassword = false // read-only
-        )
-
-        PatientButton(
-            text = "Submit Vitals",
-            onClick = { viewModel.submitVitals(patientId) },
-            isLoading = state is Resource.Loading
-        )
-
-        if (state is Resource.Error) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFF7F5FF))
+            .padding(horizontal = 24.dp, vertical = 16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier
+                .verticalScroll(scrollState)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Title
             Text(
-                text = (state as Resource.Error).message,
-                color = MaterialTheme.colorScheme.error
+                text = "Patient Vitals",
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                ),
+                modifier = Modifier.padding(bottom = 8.dp)
             )
+
+            // Visit Date
+            DatePickerField(
+                label = "Visit Date",
+                value = visitDate,
+                onDateSelected = { viewModel.onVisitDateChanged(it) },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // Height
+            PatientTextField(
+                value = height,
+                onValueChange = { viewModel.onHeightChanged(it) },
+                label = "Height (CM)",
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // Weight
+            PatientTextField(
+                value = weight,
+                onValueChange = { viewModel.onWeightChanged(it) },
+                label = "Weight (KG)",
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // BMI (readonly)
+            OutlinedTextField(
+                value = bmi,
+                onValueChange = {},
+                label = { Text("BMI", color = Color.Black) },
+                modifier = Modifier.fillMaxWidth(),
+                readOnly = true,
+                enabled = false,
+                colors = OutlinedTextFieldDefaults.colors(
+                    disabledTextColor = Color.Black,
+                    disabledBorderColor = Color.Black.copy(alpha = 0.3f),
+                    disabledLabelColor = Color.Black.copy(alpha = 0.7f)
+                ),
+                textStyle = LocalTextStyle.current.copy(color = Color.Black)
+            )
+
+            // Submit button
+            PatientButton(
+                text = "Submit Vitals",
+                onClick = { viewModel.submitVitals(patientId) },
+                isLoading = state is Resource.Loading
+            )
+
+            // Error message
+            if (state is Resource.Error) {
+                Text(
+                    text = (state as Resource.Error).message,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
     }
 }
+

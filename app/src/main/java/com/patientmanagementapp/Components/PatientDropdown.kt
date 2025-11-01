@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -17,8 +18,12 @@ fun PatientDropdown(
     var expanded by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(text = label, style = MaterialTheme.typography.bodyMedium)
-        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = label,
+            color = Color.Black,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
 
         OutlinedTextField(
             value = selectedOption,
@@ -27,7 +32,14 @@ fun PatientDropdown(
                 .fillMaxWidth()
                 .clickable { expanded = true },
             enabled = false,
-            readOnly = true
+            readOnly = true,
+            textStyle = LocalTextStyle.current.copy(color = Color.Black),
+            colors = OutlinedTextFieldDefaults.colors(
+                disabledTextColor = Color.Black,
+                disabledBorderColor = Color.Black.copy(alpha = 0.6f),
+                disabledLabelColor = Color.Black,
+                disabledTrailingIconColor = Color.Black
+            )
         )
 
         DropdownMenu(
@@ -36,7 +48,7 @@ fun PatientDropdown(
         ) {
             options.forEach { option ->
                 DropdownMenuItem(
-                    text = { Text(option) },
+                    text = { Text(option, color = Color.Black) },
                     onClick = {
                         onOptionSelected(option)
                         expanded = false
