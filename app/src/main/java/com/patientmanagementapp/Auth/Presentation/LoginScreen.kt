@@ -36,6 +36,7 @@ fun LoginScreen(
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
     val state by viewModel.state.collectAsState()
+    val validationError by viewModel.validationError.collectAsState()
 
     Box(
         modifier = Modifier
@@ -52,7 +53,6 @@ fun LoginScreen(
                 .fillMaxSize()
                 .padding(top = 80.dp)
         ) {
-            // App Logo / Title
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(10.dp))
@@ -79,7 +79,6 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // Purple curved container
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -92,8 +91,7 @@ fun LoginScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    // 🟣 Tab Row (Login / Signup)
-                    var selectedTab by remember { mutableStateOf(0) } // 0 = Login, 1 = Signup
+                    var selectedTab by remember { mutableStateOf(0) }
 
                     TabRow(
                         selectedTabIndex = selectedTab,
@@ -138,7 +136,6 @@ fun LoginScreen(
                         modifier = Modifier.align(Alignment.Start)
                     )
 
-                    // Email
                     OutlinedTextField(
                         value = email,
                         onValueChange = { viewModel.onEmailChanged(it) },
@@ -156,7 +153,7 @@ fun LoginScreen(
                         textStyle = LocalTextStyle.current.copy(color = Color.White)
                     )
 
-                    // Password
+                    // Password Field
                     OutlinedTextField(
                         value = password,
                         onValueChange = { viewModel.onPasswordChanged(it) },
@@ -175,9 +172,18 @@ fun LoginScreen(
                         textStyle = LocalTextStyle.current.copy(color = Color.White)
                     )
 
-                    // Login Button
-                    Button(
-                        onClick = { viewModel.onLoginClick() },
+                    // Show validation error if any
+                    validationError?.let { errorMsg ->
+                        Text(
+                            text = errorMsg,
+                            color = Color.Red,
+                            fontSize = 14.sp,
+                            modifier = Modifier.align(Alignment.Start)
+                        )
+                    }
+
+               Button(
+                        onClick = { viewModel.validateAndLogin() },
                         colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
@@ -191,26 +197,18 @@ fun LoginScreen(
                         )
                     }
 
-                    // Handle login state
-                    when (val result = state) {
-                        is Resource.Loading -> {
-                            CircularProgressIndicator(color = Color.White)
-                        }
-
-                        is Resource.Error -> {
-                            Text(
-                                text = result.message ?: "Unknown error",
-                                color = Color.Red,
-                                fontSize = 14.sp
-                            )
-                        }
-
+                   when (val result = state) {
+                        is Resource.Loading -> CircularProgressIndicator(color = Color.White)
+                        is Resource.Error -> Text(
+                            text = result.message ?: "Unknown error",
+                            color = Color.Red,
+                            fontSize = 14.sp
+                        )
                         is Resource.Success -> {
                             LaunchedEffect(result.data) {
                                 onLoginSuccess?.invoke()
                             }
                         }
-
                         else -> Unit
                     }
 
@@ -228,5 +226,6 @@ fun LoginScreen(
         }
     }
 }
+
 
 

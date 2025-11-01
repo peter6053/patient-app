@@ -2,6 +2,8 @@ package com.patientmanagementapp.Auth.Presentation
 
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -39,6 +42,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -50,6 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.patientmanagementapp.Components.PatientButton
 import com.patientmanagementapp.Components.PatientPasswordField
 import com.patientmanagementapp.Components.PatientTextField
+import com.patientmanagementapp.R
 import com.patientmanagementapp.Utils.Resource
 @Composable
 fun SignupScreen(
@@ -58,6 +63,7 @@ fun SignupScreen(
     onNavigateBack: () -> Unit,
 ) {
     val signupState by viewModel.signupState.collectAsState()
+    val validationError by viewModel.validationError.collectAsState()
 
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
@@ -78,8 +84,8 @@ fun SignupScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = 80.dp)
+                .scrollable(rememberScrollState(), orientation = Orientation.Vertical)
         ) {
-            // App Logo / Title
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(10.dp))
@@ -88,7 +94,7 @@ fun SignupScreen(
                     .shadow(2.dp, RoundedCornerShape(10.dp))
             ) {
                 Text(
-                    text = "IntelliSOFT",
+                    text = stringResource(R.string.intellisoft),
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF5A4FCF)
@@ -98,7 +104,7 @@ fun SignupScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Manage Your Patients, With IntelliSOFT",
+                text = stringResource(R.string.manage_your_patients_with_intellisoft),
                 color = Color.Gray,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center
@@ -106,7 +112,6 @@ fun SignupScreen(
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // Purple curved background
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -119,9 +124,7 @@ fun SignupScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    // 🟣 TabRow (Login / Sign-up)
-                    var selectedTab by remember { mutableStateOf(1) } // 1 = Sign-up
-
+                    var selectedTab by remember { mutableStateOf(1) }
                     TabRow(
                         selectedTabIndex = selectedTab,
                         containerColor = Color.Transparent,
@@ -140,74 +143,56 @@ fun SignupScreen(
                             selected = selectedTab == 0,
                             onClick = {
                                 selectedTab = 0
-                                onNavigateBack() // Go to login
+                                onNavigateBack()
                             },
-                            text = {
-                                Text(
-                                    "Login",
-                                    color = Color.White.copy(alpha = if (selectedTab == 0) 1f else 0.5f)
-                                )
-                            }
+                            text = { Text(stringResource(R.string.login), color = Color.White.copy(alpha = if (selectedTab == 0) 1f else 0.5f)) }
                         )
                         Tab(
                             selected = selectedTab == 1,
                             onClick = { selectedTab = 1 },
-                            text = { Text("Sign-up", color = Color.White) }
+                            text = { Text(stringResource(R.string.sign_up), color = Color.White) }
                         )
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Hi Doctor..",
+                        text = stringResource(R.string.hi_doctor),
                         color = Color.White,
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.align(Alignment.Start)
                     )
 
-                    // Input Fields
-                    PatientTextField(
-                        value = firstName,
-                        onValueChange = { firstName = it },
-                        label = "First Name",
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    PatientTextField(value = firstName, onValueChange = { firstName = it }, label = stringResource(
+                        R.string.first_name
+                    ), modifier = Modifier.fillMaxWidth())
+                    PatientTextField(value = lastName, onValueChange = { lastName = it }, label = stringResource(
+                        R.string.last_name
+                    ), modifier = Modifier.fillMaxWidth())
+                    PatientTextField(value = email, onValueChange = { email = it }, label = stringResource(
+                        R.string.email
+                    ), modifier = Modifier.fillMaxWidth())
+                    PatientPasswordField(value = password, onValueChange = { password = it }, label = stringResource(
+                        R.string.password
+                    ), modifier = Modifier.fillMaxWidth())
 
-                    PatientTextField(
-                        value = lastName,
-                        onValueChange = { lastName = it },
-                        label = "Last Name",
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    validationError?.let { error ->
+                        Text(
+                            text = error,
+                            color = Color.Red,
+                            fontSize = 14.sp,
+                            modifier = Modifier.align(Alignment.Start)
+                        )
+                    }
 
-                    PatientTextField(
-                        value = email,
-                        onValueChange = { email = it },
-                        label = "Email",
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    PatientPasswordField(
-                        value = password,
-                        onValueChange = { password = it },
-                        label = "Password",
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    // State Handling
+                    // Signup State Handling
                     when (signupState) {
-                        is Resource.Loading -> {
-                            CircularProgressIndicator(color = Color.White)
-                        }
-
-                        is Resource.Error -> {
-                            Text(
-                                text = (signupState as Resource.Error).message,
-                                color = Color.Red,
-                                fontSize = 14.sp
-                            )
-                        }
-
+                        is Resource.Loading -> CircularProgressIndicator(color = Color.White)
+                        is Resource.Error -> Text(
+                            text = (signupState as Resource.Error).message,
+                            color = Color.Red,
+                            fontSize = 14.sp
+                        )
                         is Resource.Success -> {
                             val data = (signupState as Resource.Success).data
                             LaunchedEffect(data) {
@@ -217,20 +202,12 @@ fun SignupScreen(
                                 }
                             }
                         }
-
                         else -> {}
                     }
 
                     // Sign Up Button
                     Button(
-                        onClick = {
-                            viewModel.signup(
-                                firstName = firstName,
-                                lastName = lastName,
-                                email = email,
-                                password = password
-                            )
-                        },
+                        onClick = { viewModel.signup(firstName, lastName, email, password) },
                         colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
@@ -247,11 +224,7 @@ fun SignupScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     TextButton(onClick = onNavigateBack) {
-                        Text(
-                            text = "Already have an account? Login",
-                            color = Color.White,
-                            fontSize = 14.sp
-                        )
+                        Text(stringResource(R.string.already_have_an_account_login), color = Color.White, fontSize = 14.sp)
                     }
                 }
             }
@@ -262,100 +235,7 @@ fun SignupScreen(
 
 
 
-//@Composable
-//fun SignupScreen(
-//    viewModel: SignupViewModel = hiltViewModel(),
-//    onSignupSuccess: (() -> Unit)? = null,
-//    onNavigateBack: () -> Unit,
-//
-//) {
-//    val signupState by viewModel.signupState.collectAsState()
-//
-//    var firstName by remember { mutableStateOf("") }
-//    var lastName by remember { mutableStateOf("") }
-//    var email by remember { mutableStateOf("") }
-//    var password by remember { mutableStateOf("") }
-//
-//    Box(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .padding(24.dp),
-//        contentAlignment = Alignment.Center
-//    ) {
-//        Column(
-//            horizontalAlignment = Alignment.CenterHorizontally,
-//            verticalArrangement = Arrangement.spacedBy(16.dp),
-//            modifier = Modifier.fillMaxWidth()
-//        ) {
-//            Text(
-//                text = "Sign Up",
-//                style = MaterialTheme.typography.headlineMedium
-//            )
-//
-//            PatientTextField(
-//                value = firstName,
-//                onValueChange = { firstName = it },
-//                label = "First Name"
-//            )
-//
-//            PatientTextField(
-//                value = lastName,
-//                onValueChange = { lastName = it },
-//                label = "Last Name"
-//            )
-//
-//            PatientTextField(
-//                value = email,
-//                onValueChange = { email = it },
-//                label = "Email"
-//            )
-//
-//            PatientPasswordField(
-//                value = password,
-//                onValueChange = { password = it },
-//                label = "Password"
-//            )
-//
-//            when (signupState) {
-//                is Resource.Loading -> {
-//                    CircularProgressIndicator(modifier = Modifier.padding(top = 16.dp))
-//                }
-//                is Resource.Error -> {
-//                    Text(
-//                        text = (signupState as Resource.Error).message,
-//                        color = MaterialTheme.colorScheme.error,
-//                        modifier = Modifier.padding(top = 16.dp)
-//                    )
-//                }
-//                is Resource.Success -> {
-//                    val data = (signupState as Resource.Success).data
-//                    LaunchedEffect(data) {
-//                        data?.let {
-//                            onSignupSuccess?.invoke()
-//                            viewModel.resetState()
-//                        }
-//                    }
-//                }
-//                null -> {}
-//                is Resource.Idle<*> -> TODO()
-//            }
-//
-//            PatientButton(
-//                text = "Sign Up",
-//                onClick = {
-//                    viewModel.signup(
-//                        firstName = firstName,
-//                        lastName = lastName,
-//                        email = email,
-//                        password = password
-//                    )
-//                },
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .height(48.dp)
-//            )
-//        }
-//    }
-//}
+
+
 
 

@@ -19,6 +19,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -28,6 +30,7 @@ import com.patientmanagementapp.Patient.Registration.Data.Local.Dao.PatientDao
 import com.patientmanagementapp.Patient.Registration.Data.Local.Entitity.RegisterPatientEntity
 import com.patientmanagementapp.Patient.Vitals.Data.Local.Dao.VitalsDao
 import com.patientmanagementapp.Patient.Vitals.Data.Local.Entity.VitalsEntity
+import com.patientmanagementapp.R
 import com.patientmanagementapp.Utils.ReportHeader
 import com.patientmanagementapp.Utils.Resource
 import java.time.Instant
@@ -56,7 +59,7 @@ fun PatientListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Intelli App") },
+                title = { Text(stringResource(R.string.intelli_app)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color(0xFFFFF8E1),
                     titleContentColor = Color.Black
@@ -70,7 +73,7 @@ fun PatientListScreen(
                     }) {
                         Icon(
                             imageVector = Icons.Default.ExitToApp,
-                            contentDescription = "Logout",
+                            contentDescription = stringResource(R.string.logout),
                             tint = Color.Black
                         )
                     }
@@ -113,7 +116,7 @@ fun PatientListScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Patient Listing",
+                            text = stringResource(R.string.patient_listing),
                             style = MaterialTheme.typography.titleLarge.copy(
                                 fontWeight = FontWeight.Bold,
                                 color = Color.Black
@@ -137,9 +140,9 @@ fun PatientListScreen(
                                 .background(Color(0xFF9CCC65))
                                 .padding(vertical = 8.dp)
                         ) {
-                            TableHeaderCell("Patient Name", Modifier.weight(2f))
-                            TableHeaderCell("Date of Birth", Modifier.weight(1f))
-                            TableHeaderCell("BMI Status", Modifier.weight(1f))
+                            TableHeaderCell(stringResource(R.string.patient_name), Modifier.weight(2f))
+                            TableHeaderCell(stringResource(R.string.date_of_birth), Modifier.weight(1f))
+                            TableHeaderCell(stringResource(R.string.bmi_status), Modifier.weight(1f))
                         }
 
                         LazyColumn(
@@ -150,14 +153,15 @@ fun PatientListScreen(
                         ) {
                             itemsIndexed(localPatients) { index, patient ->
                                 val bgColor = if (index % 2 == 0) Color.White else Color(0xFFE8F5E9)
+                                val context =  LocalContext.current
                                 val vitals = localVitals.find { it.patient_id == patient.unique }
                                 val bmiStatus = vitals?.bmi?.toFloatOrNull()?.let { bmi ->
                                     when {
-                                        bmi < 18.5f -> "Underweight"
-                                        bmi in 18.5f..24.9f -> "Normal"
-                                        else -> "Overweight"
+                                        bmi < 18.5f -> context.getString(R.string.underweight)
+                                        bmi in 18.5f..24.9f -> context.getString(R.string.normal)
+                                        else -> context.getString(R.string.overweight)
                                     }
-                                } ?: "Underweight"
+                                } ?: "Unknown"
 
                                 Row(
                                     modifier = Modifier

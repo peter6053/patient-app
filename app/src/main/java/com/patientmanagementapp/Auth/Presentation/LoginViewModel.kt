@@ -21,7 +21,7 @@ class LoginViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _email = MutableStateFlow("")
-    var email: StateFlow<String> = _email.asStateFlow()
+    val email: StateFlow<String> = _email.asStateFlow()
 
     private val _password = MutableStateFlow("")
     val password: StateFlow<String> = _password.asStateFlow()
@@ -29,12 +29,28 @@ class LoginViewModel @Inject constructor(
     private val _state = MutableStateFlow<Resource<LoginResponse>>(Resource.Idle())
     val state: StateFlow<Resource<LoginResponse>> = _state.asStateFlow()
 
+    // New: validation error state
+    private val _validationError = MutableStateFlow<String?>(null)
+    val validationError: StateFlow<String?> = _validationError.asStateFlow()
+
     fun onEmailChanged(value: String) {
         _email.value = value
     }
 
     fun onPasswordChanged(value: String) {
         _password.value = value
+    }
+
+    fun validateAndLogin() {
+        viewModelScope.launch {
+            if (_email.value.isBlank() || _password.value.isBlank()) {
+                _validationError.value = "Please fill in both email and password"
+                return@launch
+            }
+
+            _validationError.value = null
+            onLoginClick()
+        }
     }
 
     fun onLoginClick() {
@@ -45,7 +61,6 @@ class LoginViewModel @Inject constructor(
                 if (result is Resource.Success && result.data != null) {
                     // Save token to DataStore
                     dataStoreManager.saveAccessToken(result.data.data.access_token)
-
                 }
                 _state.value = result
             } catch (e: Exception) {
@@ -54,4 +69,5 @@ class LoginViewModel @Inject constructor(
         }
     }
 }
+
 

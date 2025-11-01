@@ -11,7 +11,6 @@ sealed class Screen(val route: String) {
     object GeneralAssessment : Screen("general_assessment") {
 
         fun createRoute(patientId: String, vitalId: String, patientName: String): String {
-            // Encode patientName to safely handle spaces or special characters
             val encodedName = java.net.URLEncoder.encode(patientName, "UTF-8")
             return "$route?patientId=$patientId&vitalId=$vitalId&patientName=$encodedName"
         }

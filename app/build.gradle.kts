@@ -63,32 +63,32 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    // 🧩 Room (using KSP only)
+    // Room (using KSP only)
     val roomVersion = "2.8.3"
-    implementation("androidx.room:room-runtime:$roomVersion")
-    implementation("androidx.room:room-ktx:$roomVersion")
-    implementation("androidx.room:room-paging:$roomVersion")
-    ksp("androidx.room:room-compiler:$roomVersion")
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx.v283)
+    implementation(libs.androidx.room.paging)
+    ksp(libs.androidx.room.compiler.v283)
 
-    // 🧩 Hilt (using KSP)
-    implementation("com.google.dagger:hilt-android:2.57.2")
-    ksp("com.google.dagger:hilt-compiler:2.57.2")
+    //  Hilt (using KSP)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
-    // 🧩 Retrofit + Moshi
+    //  Retrofit + Moshi
     implementation(libs.retrofit)
     implementation(libs.moshi.kotlin)
     implementation(libs.converter.moshi)
     implementation(libs.moshi.adapters)
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation(libs.logging.interceptor)
 
-    // 🧩 Timber
-    implementation("com.jakewharton.timber:timber:5.0.1")
+    //  Timber
+    implementation(libs.timber)
 
-    // 🧩 DataStore
-    implementation("androidx.datastore:datastore-preferences:1.1.0")
+    // DataStore
+    implementation(libs.androidx.datastore.preferences)
 
-    // 🧩 Material Icons & Navigation
+    //  Material Icons & Navigation
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.navigation.compose)
 }
