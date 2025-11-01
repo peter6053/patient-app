@@ -46,7 +46,6 @@ fun VitalsScreen(
 
     val scrollState = rememberScrollState()
 
-    // Observe navigation events
     LaunchedEffect(Unit) {
         viewModel.navigateTo.collect { route ->
             navController.navigate(route) {
@@ -69,7 +68,7 @@ fun VitalsScreen(
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Title
+
             Text(
                 text = "Patient Vitals",
                 style = MaterialTheme.typography.headlineSmall.copy(
@@ -87,7 +86,6 @@ fun VitalsScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Height
             PatientTextField(
                 value = height,
                 onValueChange = { viewModel.onHeightChanged(it) },
@@ -95,7 +93,6 @@ fun VitalsScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Weight
             PatientTextField(
                 value = weight,
                 onValueChange = { viewModel.onWeightChanged(it) },
@@ -103,7 +100,6 @@ fun VitalsScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // BMI (readonly)
             OutlinedTextField(
                 value = bmi,
                 onValueChange = {},
@@ -119,14 +115,12 @@ fun VitalsScreen(
                 textStyle = LocalTextStyle.current.copy(color = Color.Black)
             )
 
-            // Submit button
             PatientButton(
                 text = "Submit Vitals",
                 onClick = { viewModel.submitVitals(patientId) },
                 isLoading = state is Resource.Loading
             )
 
-            // Error message
             if (state is Resource.Error) {
                 Text(
                     text = (state as Resource.Error).message,

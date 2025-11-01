@@ -3,6 +3,8 @@ package com.patientmanagementapp.Vitals.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.patientmanagementapp.Navigation.Screen
+import com.patientmanagementapp.Patient.Vitals.Data.Local.Dao.VitalsDao
+import com.patientmanagementapp.Patient.Vitals.Data.Local.Entity.VitalsEntity
 import com.patientmanagementapp.Patient.Vitals.Dormain.Usecases.SubmitVitalsUseCase
 import com.patientmanagementapp.Patient.Vitals.Dormain.VitalsRequestBody
 import com.patientmanagementapp.Patient.Vitals.Dormain.VitalsResonseBody
@@ -18,10 +20,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class VitalsViewModel @Inject constructor(
-    private val submitVitalsUseCase: SubmitVitalsUseCase
+    private val submitVitalsUseCase: SubmitVitalsUseCase,
+    private val vitalsDao: VitalsDao
 ) : ViewModel() {
 
-    // Input state
     private val _height = MutableStateFlow("")
     val height = _height.asStateFlow()
 
@@ -34,15 +36,12 @@ class VitalsViewModel @Inject constructor(
     private val _visitDate = MutableStateFlow("")
     val visitDate = _visitDate.asStateFlow()
 
-    // API response state
     private val _state = MutableStateFlow<Resource<VitalsResonseBody>>(Resource.Idle())
     val state = _state.asStateFlow()
 
-    // Navigation event
     private val _navigateTo = MutableSharedFlow<String>()
-    val navigateTo = _navigateTo.asSharedFlow() // Observe this in the UI
+    val navigateTo = _navigateTo.asSharedFlow()
 
-    // Update input fields
     fun onHeightChanged(value: String) {
         _height.value = value
         calculateBmi()
@@ -99,14 +98,25 @@ class VitalsViewModel @Inject constructor(
                 val response = submitVitalsUseCase(request)
                 _state.value = response
 
+                val vitalsEntity = VitalsEntity(
+
+                    patient_id = patientId,
+                    height = _height.value,
+                    weight = _weight.value,
+                    bmi = _bmi.value,
+                    visit_date = _visitDate.value,
+                )
+                vitalsDao.insertVitals(vitalsEntity)
+
                 if (response is Resource.Success) {
                     val bmiValue = _bmi.value.toFloatOrNull() ?: 0f
-                    val vitalId = response.data?.data?.id?.toString() ?: ""
+                    val vitalId = response.data?.data?.id?.toString() ?: vitalsEntity.id.toString()
+                    val patientname = response.data?.data?.id?.toString() ?: vitalsEntity.id.toString()
 
                     val targetScreen = if (bmiValue <= 25f) {
-                        Screen.GeneralAssessment.createRoute(patientId, vitalId)
+                        Screen.GeneralAssessment.createRoute(patientId, vitalId,patientname)
                     } else {
-                        Screen.OverweightAssessment.createRoute(patientId, vitalId)
+                        Screen.OverweightAssessment.createRoute(patientId, vitalId, patientName = patientname)
                     }
 
                     _navigateTo.emit(targetScreen)

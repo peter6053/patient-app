@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.Navigation
 import com.patientmanagementapp.Navigation.Screen
+import com.patientmanagementapp.Patient.OverWeightAssessmentPage.Data.Local.Dao.OverWeightAssessmentDao
+import com.patientmanagementapp.Patient.OverWeightAssessmentPage.Data.Local.OverWeightAssessmentEntity
 import com.patientmanagementapp.Patient.OverWeightAssessmentPage.Dormain.models.OverWeightAssessmentResponse
 import com.patientmanagementapp.Patient.OverWeightAssessmentPage.Dormain.models.OverweightAssessmentRequest
 
@@ -20,7 +22,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OverweightAssessmentViewModel @Inject constructor(
-    private val submitUseCase: SubmitOverweightAssessmentUseCase
+    private val submitUseCase: SubmitOverweightAssessmentUseCase,
+    private val dao: OverWeightAssessmentDao
+
 ) : ViewModel() {
 
     private val _visitDate = MutableStateFlow("")
@@ -66,7 +70,7 @@ class OverweightAssessmentViewModel @Inject constructor(
 
     fun onCommentsChanged(value: String) { _comments.value = value }
 
-    fun submitAssessment(patientId: String, vitalId: String) {
+    fun submitAssessment(patientId: String, vitalId: String, patientName: String) {
         viewModelScope.launch {
             if (!validateInputs()) return@launch
 
@@ -82,6 +86,16 @@ class OverweightAssessmentViewModel @Inject constructor(
                     visit_date = _visitDate.value
                 )
 
+                val entity = OverWeightAssessmentEntity(
+                    patientId = patientId,
+                    patientName = patientName,
+                    visitDate = _visitDate.value,
+                    generalHealth = _generalHealth.value,
+                    onDiet = _onDiet.value,
+                    comments = _comments.value
+                )
+                dao.insert(entity)
+
                 val response = submitUseCase(request)
                 _state.value = response
 
@@ -94,6 +108,7 @@ class OverweightAssessmentViewModel @Inject constructor(
             }
         }
     }
+
 
 
     private fun validateInputs(): Boolean {

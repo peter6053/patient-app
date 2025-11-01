@@ -22,7 +22,7 @@ class DataStoreViewModel @Inject constructor(
         }
     }
 
-    // Clear all stored data
+
     fun clearDataStore() {
         viewModelScope.launch {
             dataStoreManager.clear()

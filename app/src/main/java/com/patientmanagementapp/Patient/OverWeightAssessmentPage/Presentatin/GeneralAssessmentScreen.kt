@@ -51,6 +51,7 @@ fun OverweightAssessmentScreen(
     navController: NavHostController,
     patientId: String,
     vitalId: String,
+    patientName: String,
     viewModel: OverweightAssessmentViewModel = hiltViewModel()
 ) {
     val visitDate by viewModel.visitDate.collectAsState()
@@ -175,7 +176,8 @@ fun OverweightAssessmentScreen(
                 }
 
                 Button(
-                    onClick = { viewModel.submitAssessment(patientId, vitalId) },
+                    onClick = { viewModel.submitAssessment(patientId, vitalId ,patientName,
+                    ) },
                     enabled = state !is Resource.Loading,
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD6EAD6))
                 ) {
