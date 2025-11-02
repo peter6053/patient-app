@@ -40,6 +40,7 @@ import com.patientmanagementapp.Components.DatePickerField
 import com.patientmanagementapp.Components.PatientButton
 import com.patientmanagementapp.Components.PatientDropdown
 import com.patientmanagementapp.Components.PatientTextField
+import com.patientmanagementapp.Components.VitalsPatientTextField
 import com.patientmanagementapp.Navigation.Screen
 import com.patientmanagementapp.Utils.Resource
 
@@ -88,156 +89,170 @@ fun GeneralAssessmentScreen(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
                 .wrapContentHeight()
-                .padding(start = 16.dp)
                 .verticalScroll(rememberScrollState())
                 .shadow(12.dp, RoundedCornerShape(24.dp)),
             colors = CardDefaults.cardColors(containerColor = Color.White),
             shape = RoundedCornerShape(24.dp)
         ) {
-            // Title
-            Text(
-                text = "Patient Visit Form B - General Assessment",
-                style = MaterialTheme.typography.titleMedium.copy(color = Color.Black),
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 12.dp),
-                textAlign = TextAlign.Center
-            )
-
-            DatePickerField(
-                label = "Visit Date",
-                value = visitDate,
-                onDateSelected = { viewModel.visitDate.value = it }
-            )
-
-            Text(
-                text = "General Health?",
-                style = MaterialTheme.typography.titleMedium.copy(color = Color.Black)
-            )
-            healthOptions.forEach { option ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { viewModel.generalHealth.value = option }
-                        .padding(vertical = 2.dp)
-                ) {
-                    RadioButton(
-                        selected = generalHealth == option,
-                        onClick = { viewModel.generalHealth.value = option }
-                    )
-                    Text(
-                        text = option,
-                        style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black)
-                    )
-                }
-            }
-
-            // Ever been on a diet
-            Text(
-                text = "Ever been on a diet to loos weight?",
-                style = MaterialTheme.typography.titleMedium.copy(color = Color.Black)
-            )
-            dietOptions.forEach { option ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { viewModel.onDiet.value = option }
-                        .padding(vertical = 2.dp)
-                ) {
-                    RadioButton(
-                        selected = onDiet == option,
-                        onClick = { viewModel.onDiet.value = option }
-                    )
-                    Text(
-                        text = option,
-                        style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black)
-                    )
-                }
-            }
-
-            // On Drugs
-            Text(
-                text = "On drugs?",
-                style = MaterialTheme.typography.titleMedium.copy(color = Color.Black)
-            )
-            drugOptions.forEach { option ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { viewModel.onDrugs.value = option }
-                        .padding(vertical = 2.dp)
-                ) {
-                    RadioButton(
-                        selected = onDrugs == option,
-                        onClick = { viewModel.onDrugs.value = option }
-                    )
-                    Text(
-                        text = option,
-                        style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black)
-                    )
-                }
-            }
-
-            // Comments field
-            PatientTextField(
-                value = comments,
-                onValueChange = { viewModel.comments.value = it },
-                label = "Comments"
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Buttons
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                    .padding(16.dp) // internal padding for content
             ) {
-                Button(
-                    onClick = { navController.popBackStack() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD6EAD6))
-                ) {
-                    Text("Close")
-                }
+                // Title
+                Text(
+                    text = "Patient Visit Form B - General Assessment",
+                    style = MaterialTheme.typography.titleMedium.copy(color = Color.Black),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp),
+                    textAlign = TextAlign.Center
+                )
 
-                Button(
-                    onClick = { viewModel.submitAssessment(patientId, vitalId,patientName) },
-                    enabled = state !is Resource.Loading,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD6EAD6))
-                ) {
-                    if (state is Resource.Loading) {
-                        CircularProgressIndicator(
-                            color = Color.Gray,
-                            strokeWidth = 2.dp,
-                            modifier = Modifier.size(20.dp)
+                DatePickerField(
+                    label = "Visit Date",
+                    value = visitDate,
+                    onDateSelected = { viewModel.visitDate.value = it }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "General Health?",
+                    style = MaterialTheme.typography.titleMedium.copy(color = Color.Black)
+                )
+                healthOptions.forEach { option ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { viewModel.generalHealth.value = option }
+                            .padding(vertical = 2.dp)
+                    ) {
+                        RadioButton(
+                            selected = generalHealth == option,
+                            onClick = { viewModel.generalHealth.value = option }
                         )
-                    } else {
-                        Text("Save")
+                        Text(
+                            text = option,
+                            style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black),
+                            modifier = Modifier.padding(start = 8.dp) // spacing from radio button
+                        )
                     }
                 }
-            }
 
-            // Validation or error messages
-            validationError?.let {
-                Text(
-                    text = it,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-            }
+                Spacer(modifier = Modifier.height(16.dp))
 
-            if (state is Resource.Error) {
                 Text(
-                    text = (state as Resource.Error).message,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = 8.dp)
+                    text = "Ever been on a diet to lose weight?",
+                    style = MaterialTheme.typography.titleMedium.copy(color = Color.Black)
                 )
+                dietOptions.forEach { option ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { viewModel.onDiet.value = option }
+                            .padding(vertical = 2.dp)
+                    ) {
+                        RadioButton(
+                            selected = onDiet == option,
+                            onClick = { viewModel.onDiet.value = option }
+                        )
+                        Text(
+                            text = option,
+                            style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black),
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "On drugs?",
+                    style = MaterialTheme.typography.titleMedium.copy(color = Color.Black)
+                )
+                drugOptions.forEach { option ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { viewModel.onDrugs.value = option }
+                            .padding(vertical = 2.dp)
+                    ) {
+                        RadioButton(
+                            selected = onDrugs == option,
+                            onClick = { viewModel.onDrugs.value = option }
+                        )
+                        Text(
+                            text = option,
+                            style = MaterialTheme.typography.bodyLarge.copy(color = Color.Black),
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                VitalsPatientTextField(
+                    value = comments,
+                    onValueChange = { viewModel.comments.value = it },
+                    label = "Comments"
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Button(
+                        onClick = { navController.popBackStack() },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD6EAD6))
+                    ) {
+                        Text("Close")
+                    }
+
+                    Button(
+                        onClick = { viewModel.submitAssessment(patientId, vitalId, patientName) },
+                        enabled = state !is Resource.Loading,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD6EAD6))
+                    ) {
+                        if (state is Resource.Loading) {
+                            CircularProgressIndicator(
+                                color = Color.Gray,
+                                strokeWidth = 2.dp,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        } else {
+                            Text("Save")
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Validation or error messages
+                validationError?.let {
+                    Text(
+                        text = it,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+
+                if (state is Resource.Error) {
+                    Text(
+                        text = (state as Resource.Error).message,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
         }
+
     }
 }
 

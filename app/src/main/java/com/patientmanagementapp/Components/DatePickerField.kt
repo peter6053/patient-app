@@ -76,3 +76,58 @@ fun DatePickerField(
     }
 }
 
+@Composable
+fun PatientDatePickerField(
+    label: String,
+    value: String,
+    onDateSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    var text by remember { mutableStateOf(value) }
+
+    val calendar = Calendar.getInstance()
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+    val datePickerDialog = DatePickerDialog(
+        context,
+        { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+            calendar.set(year, month, dayOfMonth)
+            val formattedDate = dateFormat.format(calendar.time)
+            text = formattedDate
+            onDateSelected(formattedDate)
+        },
+        calendar.get(Calendar.YEAR),
+        calendar.get(Calendar.MONTH),
+        calendar.get(Calendar.DAY_OF_MONTH)
+    )
+
+    Column(
+        modifier = modifier.padding(vertical = 2.dp)
+    ) {
+        Text(
+            text = label,
+            color = Color.Black,
+            fontSize = 14.sp,
+            modifier = Modifier.padding(bottom = 2.dp)
+        )
+        OutlinedTextField(
+            value = text,
+            onValueChange = {},
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .clickable { datePickerDialog.show() },
+            readOnly = true,
+            enabled = false,
+            textStyle = LocalTextStyle.current.copy(color = Color.Black, fontSize = 14.sp),
+            colors = OutlinedTextFieldDefaults.colors(
+                disabledTextColor = Color.Black,
+                disabledBorderColor = Color.Black,
+                disabledLabelColor = Color.Black,
+                disabledTrailingIconColor = Color.Black
+            )
+        )
+    }
+}
+

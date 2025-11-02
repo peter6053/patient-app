@@ -28,7 +28,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.patientmanagementapp.Components.DatePickerField
 import com.patientmanagementapp.Components.PatientButton
+import com.patientmanagementapp.Components.PatientDatePickerField
 import com.patientmanagementapp.Components.PatientTextField
+import com.patientmanagementapp.Components.VitalsPatientTextField
 import com.patientmanagementapp.Utils.Resource
 import com.patientmanagementapp.Vitals.presentation.VitalsViewModel
 
@@ -78,22 +80,22 @@ fun VitalsScreen(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            // Visit Date
-            DatePickerField(
+
+            PatientDatePickerField(
                 label = "Visit Date",
                 value = visitDate,
                 onDateSelected = { viewModel.onVisitDateChanged(it) },
                 modifier = Modifier.fillMaxWidth()
             )
 
-            PatientTextField(
+            VitalsPatientTextField(
                 value = height,
                 onValueChange = { viewModel.onHeightChanged(it) },
                 label = "Height (CM)",
                 modifier = Modifier.fillMaxWidth()
             )
 
-            PatientTextField(
+            VitalsPatientTextField(
                 value = weight,
                 onValueChange = { viewModel.onWeightChanged(it) },
                 label = "Weight (KG)",

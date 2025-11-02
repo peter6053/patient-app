@@ -53,3 +53,28 @@ fun PatientTextField(
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None
     )
 }
+@Composable
+fun VitalsPatientTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    modifier: Modifier = Modifier,
+    isPassword: Boolean = false,
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label, color = Color.Black) },
+        singleLine = true,
+        modifier = modifier,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Color.Black,
+            unfocusedBorderColor = Color.Black.copy(alpha = 0.6f),
+            focusedLabelColor = Color.Black,
+            unfocusedLabelColor = Color.Black.copy(alpha = 0.8f),
+            cursorColor = Color.Black
+        ),
+        textStyle = LocalTextStyle.current.copy(color = Color.Black),
+        visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None
+    )
+}
