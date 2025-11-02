@@ -1,6 +1,13 @@
 
 A mobile app that shows a allow you to register patient, add vitals
+## Screenshots
 
+<p float="left">
+  <img src="https://github.com/peter6053/patient-app/blob/main/app/src/main/java/com/patientmanagementapp/Utils/screenshots/demo.gif" width="200" />
+  <img src="https://github.com/peter6053/patient-app/blob/main/app/src/main/java/com/patientmanagementapp/Utils/screenshots/WhatsApp%20Image%202025-11-01%20at%204.16.12%20PM.jpeg" width="200" />
+  <img src="https://github.com/peter6053/patient-app/blob/main/app/src/main/java/com/patientmanagementapp/Utils/screenshots/WhatsApp%20Image%202025-11-01%20at%204.04.15%20PM.jpeg" width="200" />
+  <img src="https://github.com/peter6053/patient-app/blob/main/app/src/main/java/com/patientmanagementapp/Utils/screenshots/WhatsApp%20Image%202025-11-01%20at%204.05.22%20PM.jpeg" width="200" />
+</p>
 
 ## Tech Stack
 Tech-stack
@@ -56,12 +63,5 @@ Contains reusable UI components, Color, Typography, and Theme that can be reused
 
 ## Dependencies
 All the dependencies (external libraries) are managed using version catalogs and defined in a single place gradle/libs.versions.toml file. This is a scalable approach to manage dependencies and use the same dependency version across all modules.
-## Screenshots
 
-<p float="left">
-  <img src="https://github.com/peter6053/patient-app/blob/main/app/src/main/java/com/patientmanagementapp/Utils/screenshots/demo.gif" width="200" />
-  <img src="https://github.com/peter6053/patient-app/blob/main/app/src/main/java/com/patientmanagementapp/Utils/screenshots/WhatsApp%20Image%202025-11-01%20at%204.16.12%20PM.jpeg" width="200" />
-  <img src="https://github.com/peter6053/patient-app/blob/main/app/src/main/java/com/patientmanagementapp/Utils/screenshots/WhatsApp%20Image%202025-11-01%20at%204.04.15%20PM.jpeg" width="200" />
-  <img src="https://github.com/peter6053/patient-app/blob/main/app/src/main/java/com/patientmanagementapp/Utils/screenshots/WhatsApp%20Image%202025-11-01%20at%204.05.22%20PM.jpeg" width="200" />
-</p>
 
