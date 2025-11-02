@@ -59,7 +59,9 @@ All the dependencies (external libraries) are managed using version catalogs and
 ## Screenshots
 
 <p float="left">
+  <img src="https://github.com/peter6053/patient-app/blob/main/app/src/main/java/com/patientmanagementapp/Utils/screenshots/demo.gif" width="200" />
   <img src="https://github.com/peter6053/patient-app/blob/main/app/src/main/java/com/patientmanagementapp/Utils/screenshots/WhatsApp%20Image%202025-11-01%20at%204.16.12%20PM.jpeg" width="200" />
   <img src="https://github.com/peter6053/patient-app/blob/main/app/src/main/java/com/patientmanagementapp/Utils/screenshots/WhatsApp%20Image%202025-11-01%20at%204.04.15%20PM.jpeg" width="200" />
   <img src="https://github.com/peter6053/patient-app/blob/main/app/src/main/java/com/patientmanagementapp/Utils/screenshots/WhatsApp%20Image%202025-11-01%20at%204.05.22%20PM.jpeg" width="200" />
 </p>
+
