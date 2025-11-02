@@ -161,7 +161,7 @@ fun PatientListScreen(
                                         bmi in 18.5f..24.9f -> context.getString(R.string.normal)
                                         else -> context.getString(R.string.overweight)
                                     }
-                                } ?: "Unknown"
+                                } ?: "normal"
 
                                 Row(
                                     modifier = Modifier
